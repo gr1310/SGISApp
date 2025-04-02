@@ -22,6 +22,14 @@ const pool = mysql.createConnection({
   port: 3306,
 });
 
+pool.connect((err) => {
+  if (err) {
+    console.error("Error connecting to MySQL: " + err.stack);
+    return;
+  }
+  console.log("Connected to MySQL as ID " + pool.threadId);
+});
+
 app.use(
   cors({
     origin: true, // Allow all origins
