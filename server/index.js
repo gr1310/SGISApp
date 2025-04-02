@@ -11,14 +11,17 @@ const { Pool } = pg;
 const port = 3000;
 app.use(express.json());
 import http from "http";
+import mysql from "mysql2/promise";
 import https from "https";
 
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "sgis",
-  password: "123456",
-  port: 5432,
+const pool = mysql.createPool({
+  host: "http://sgismysqldb.cbi406sse361.ap-south-1.rds.amazonaws.com",
+  user: "admin",
+  password: "12345678",
+  database: "sgisdb",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
 app.use(
