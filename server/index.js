@@ -8,7 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 const app = express();
 const { Pool } = pg;
-const port = 3000;
+const port = 80;
 app.use(express.json());
 import http from "http";
 import mysql from "mysql2/promise";
@@ -294,19 +294,20 @@ app.get("/complaints/:email", async (req, res) => {
   }
 });
 
-// app.listen(port, "0.0.0.0", () => {
-//   console.log(`Server running on http://0.0.0.0:${port}`);
-// });
+app.listen(port, "3.108.237.75", () => {
+  console.log(`Server running on http://0.0.0.0:${port}`);
+  console.log(`Server running on http://3.108.237.75:80`);
+});
 
 // server.listen(port, "0.0.0.0", () => {
 //   console.log(`Server running on http://0.0.0.0:${port}`);
 // });
-http
-  .createServer(function (req, res) {
-    res.write("** Welcome to SGIS**"); //write a response to the client
-    res.end(); //end the response
-  })
-  .listen(80);
+// http
+//   .createServer(function (req, res) {
+//     res.write("** Welcome to SGIS**"); //write a response to the client
+//     res.end(); //end the response
+//   })
+//   .listen(80);
 
 // https.createServer(options, app).listen(443, () => {
 //   console.log("HTTPS Server running on port 443");
