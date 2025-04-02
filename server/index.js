@@ -14,7 +14,7 @@ import http from "http";
 import mysql from "mysql";
 import https from "https";
 
-const pool = mysql.createPool({
+const pool = mysql.createConnection({
   host: "sgismysqldb.cbi406sse361.ap-south-1.rds.amazonaws.com",
   user: "admin",
   password: "12345678",
