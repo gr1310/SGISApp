@@ -67,29 +67,19 @@ app.post("/signup", async (req, res) => {
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password are required" });
   }
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await pool.query(
-      "INSERT INTO users (email, password) VALUES (?, ?)",
-      [email, hashedPassword],
-      (err, result) => {
-        if (err) {
-          console.error("Error executing query: " + err.stack);
-          res.status(400).send("Error creating user");
-          return;
-        }
-        res.status(201).send("User created successfully");
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await pool.query(
+    "INSERT INTO users (email, password) VALUES (?, ?)",
+    [email, hashedPassword],
+    (err, result) => {
+      if (err) {
+        console.error("Error executing query: " + err.stack);
+        res.status(400).send("Error creating user");
+        return;
       }
-    );
-    // console.log(result);
-    // res.json({
-    //   message: "User registered successfully",
-    // });
-  } catch (error) {
-    console.error("Error registering user:", error);
-    res.status(500).json({ error: "Error registering user" });
-  }
+      res.status(201).send("User created successfully");
+    }
+  );
 });
 
 // Login API
