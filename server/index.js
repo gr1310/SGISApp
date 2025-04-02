@@ -65,6 +65,7 @@ app.post("/signup", async (req, res) => {
       "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id",
       [email, hashedPassword]
     );
+    console.log(result);
     res.json({
       userId: result.rows[0].id,
       message: "User registered successfully",
