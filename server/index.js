@@ -11,7 +11,7 @@ const { Pool } = pg;
 const port = 80;
 app.use(express.json());
 import http from "http";
-import mysql from "mysql2/promise";
+import mysql from "mysql";
 import https from "https";
 
 const pool = mysql.createPool({
@@ -19,9 +19,6 @@ const pool = mysql.createPool({
   user: "admin",
   password: "12345678",
   database: "sgisdb",
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
 });
 
 app.use(
