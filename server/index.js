@@ -63,7 +63,15 @@ app.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
       "INSERT INTO users (email, password) VALUES (?, ?)",
-      [email, hashedPassword]
+      [email, hashedPassword],
+      (err, result) => {
+        if (err) {
+          console.error("Error executing query: " + err.stack);
+          res.status(400).send("Error creating user");
+          return;
+        }
+        res.status(201).send("User created successfully");
+      }
     );
     console.log(result);
     res.json({
@@ -86,7 +94,7 @@ app.post("/login", async (req, res) => {
   }
 
   try {
-    const result = await pool.query("SELECT * FROM users WHERE email=$1", [
+    const result = await pool.query("SELECT * FROM users WHERE email=?", [
       email,
     ]);
     if (result.rowCount === 0) {
