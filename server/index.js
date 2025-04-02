@@ -10,6 +10,8 @@ const app = express();
 const { Pool } = pg;
 const port = 3000;
 app.use(express.json());
+import http from "http";
+const server = http.createServer(app);
 
 const pool = new Pool({
   user: "postgres",
@@ -289,6 +291,10 @@ app.get("/complaints/:email", async (req, res) => {
   }
 });
 
-app.listen(port, "0.0.0.0", () => {
+// app.listen(port, "0.0.0.0", () => {
+//   console.log(`Server running on http://0.0.0.0:${port}`);
+// });
+
+server.listen(port, "0.0.0.0", () => {
   console.log(`Server running on http://0.0.0.0:${port}`);
 });
