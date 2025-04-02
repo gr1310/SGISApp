@@ -12,7 +12,6 @@ const port = 3000;
 app.use(express.json());
 import http from "http";
 import https from "https";
-const server = http.createServer(app);
 
 const pool = new Pool({
   user: "postgres",
