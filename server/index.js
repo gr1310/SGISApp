@@ -294,9 +294,9 @@ app.get("/complaints/:email", async (req, res) => {
   }
 });
 
-app.listen(port, "3.108.237.75", () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on http://0.0.0.0:${port}`);
-  console.log(`Server running on http://3.108.237.75:80`);
+  // console.log(`Server running on http://3.108.237.75:80`);
 });
 
 // server.listen(port, "0.0.0.0", () => {
