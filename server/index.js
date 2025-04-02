@@ -11,6 +11,7 @@ const { Pool } = pg;
 const port = 3000;
 app.use(express.json());
 import http from "http";
+import https from "https";
 const server = http.createServer(app);
 
 const pool = new Pool({
@@ -295,6 +296,16 @@ app.get("/complaints/:email", async (req, res) => {
 //   console.log(`Server running on http://0.0.0.0:${port}`);
 // });
 
-server.listen(port, "0.0.0.0", () => {
-  console.log(`Server running on http://0.0.0.0:${port}`);
-});
+// server.listen(port, "0.0.0.0", () => {
+//   console.log(`Server running on http://0.0.0.0:${port}`);
+// });
+http
+  .createServer(function (req, res) {
+    res.write("** Welcome to SGIS**"); //write a response to the client
+    res.end(); //end the response
+  })
+  .listen(80);
+
+// https.createServer(options, app).listen(443, () => {
+//   console.log("HTTPS Server running on port 443");
+// });
