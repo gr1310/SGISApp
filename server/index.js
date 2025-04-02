@@ -19,6 +19,7 @@ const pool = mysql.createConnection({
   user: "admin",
   password: "12345678",
   database: "sgisdb",
+  port: 3306,
 });
 
 app.use(
