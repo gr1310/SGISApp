@@ -62,12 +62,11 @@ app.post("/signup", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      "INSERT INTO users (email, password) VALUES (?, ?) RETURNING id",
+      "INSERT INTO users (email, password) VALUES (?, ?)",
       [email, hashedPassword]
     );
     console.log(result);
     res.json({
-      userId: result.rows[0].id,
       message: "User registered successfully",
     });
   } catch (error) {
