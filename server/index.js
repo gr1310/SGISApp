@@ -43,6 +43,10 @@ app.use(function (req, res, next) {
 
 const SECRET_KEY = "secret"; // Store in env for security
 
+app.get("/", async (req, res) => {
+  console.log("server working");
+  return res.status(200).json({ message: "working" });
+});
 // Sign Up API
 app.post("/signup", async (req, res) => {
   console.log("sign up called");
