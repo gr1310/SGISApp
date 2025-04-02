@@ -15,7 +15,7 @@ import mysql from "mysql";
 import https from "https";
 
 const pool = mysql.createPool({
-  host: "http://sgismysqldb.cbi406sse361.ap-south-1.rds.amazonaws.com",
+  host: "sgismysqldb.cbi406sse361.ap-south-1.rds.amazonaws.com",
   user: "admin",
   password: "12345678",
   database: "sgisdb",
@@ -61,7 +61,7 @@ app.post("/signup", async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await pool.query(
+    await pool.query(
       "INSERT INTO users (email, password) VALUES (?, ?)",
       [email, hashedPassword],
       (err, result) => {
