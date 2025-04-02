@@ -62,7 +62,7 @@ app.post("/signup", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id",
+      "INSERT INTO users (email, password) VALUES (?, ?) RETURNING id",
       [email, hashedPassword]
     );
     console.log(result);
