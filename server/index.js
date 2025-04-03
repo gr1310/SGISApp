@@ -32,8 +32,8 @@ pool.connect((err) => {
 
 app.use(
   cors({
-    // origin: true, // Allow all origins
-    origin: ["https://sgis-hmcm2lrhv-grs-projects-f4bac858.vercel.app"], // Allow all origins
+    origin: true, // Allow all origins
+    // origin: ["https://sgis-hmcm2lrhv-grs-projects-f4bac858.vercel.app"], // Allow all origins
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
