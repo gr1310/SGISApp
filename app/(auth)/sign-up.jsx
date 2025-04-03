@@ -26,7 +26,6 @@ export default function SignUpScreen() {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async () => {
-    showAlert("Submitting....");
     if (!email.trim() || !password.trim()) {
       showAlert("Error", "Email and password are required.");
       return;
@@ -45,8 +44,13 @@ export default function SignUpScreen() {
         },
         body: JSON.stringify({ email, password }),
       });
+      console.log(response);
+      console.log(result);
 
       const result = await response.json();
+
+      console.log(response);
+      console.log(result);
       setLoading(false);
 
       if (response.ok) {
