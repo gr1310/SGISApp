@@ -32,7 +32,11 @@ pool.connect((err) => {
 
 app.use(
   cors({
-    origin: true, // Allow all origins
+    // origin: true, // Allow all origins
+    origin: [
+      "https://sgis-hmcm2lrhv-grs-projects-f4bac858.vercel.app", // Vercel frontend
+      "http://localhost:8081", // Local frontend (for testing)
+    ], // Allow all origins
     // origin: ["https://sgis-hmcm2lrhv-grs-projects-f4bac858.vercel.app"], // Allow all origins
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -41,7 +45,10 @@ app.use(
 );
 
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://sgis-hmcm2lrhv-grs-projects-f4bac858.vercel.app"
+  );
   res.header(
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
@@ -50,6 +57,7 @@ app.use(function (req, res, next) {
     "Access-Control-Allow-Headers",
     "x-access-token, Origin, X-Requested-With, Content-Type, Accept"
   );
+  res.header("Access-Control-Allow-Credentials", "true");
   next();
 });
 
