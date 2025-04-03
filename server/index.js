@@ -35,7 +35,8 @@ app.use(
     // origin: true, // Allow all origins
     origin: [
       "https://sgis-hmcm2lrhv-grs-projects-f4bac858.vercel.app", // Vercel frontend
-      "http://localhost:8081", // Local frontend (for testing)
+      "http://localhost:8081",
+      "*", // Local frontend (for testing)
     ], // Allow all origins
     // origin: ["https://sgis-hmcm2lrhv-grs-projects-f4bac858.vercel.app"], // Allow all origins
     methods: ["GET", "POST", "PUT", "DELETE"],
