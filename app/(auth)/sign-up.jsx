@@ -99,8 +99,6 @@ export default function SignUpScreen() {
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
-          console.log("cwvfbcnalm");
-          showAlert("Sign up button pressed");
           onSubmit();
         }}
         disabled={loading}
