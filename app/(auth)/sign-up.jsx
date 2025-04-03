@@ -44,13 +44,20 @@ export default function SignUpScreen() {
         },
         body: JSON.stringify({ email, password }),
       });
-      console.log(response);
-      console.log(result);
 
-      const result = await response.json();
+      console.log("Response Status:", response.status);
+      console.log("Response Headers:", response.headers);
 
-      console.log(response);
-      console.log(result);
+      // Handle cases where response body is empty or invalid
+      let result;
+      try {
+        result = await response.json();
+      } catch (jsonError) {
+        console.error("JSON Parsing Error:", jsonError);
+        result = null;
+      }
+
+      console.log("Parsed Result:", result);
       setLoading(false);
 
       if (response.ok) {
@@ -60,10 +67,11 @@ export default function SignUpScreen() {
         setEmail("");
         setPassword("");
       } else {
-        showAlert("Error", result.message || "Sign-up failed.");
+        showAlert("Error", result?.message || "Sign-up failed.");
       }
     } catch (error) {
       setLoading(false);
+      console.error("Network Error:", error);
       showAlert("Error", "Network error. Please try again later.");
     }
   };
