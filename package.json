@@ -2,7 +2,7 @@
   "name": "sgis-app",
   "version": "1.0.0",
   "main": "expo-router/entry",
-  "homepage": "https://gr1310.github.io/SGISApp/",
+  "homepage": "./",
  "scripts": {
 "predeploy": "expo export -p web --output-dir web-build",
 "deploy": "gh-pages --nojekyll -d web-build",

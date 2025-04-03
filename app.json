@@ -23,11 +23,13 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "output": "web-build",
+  "publicPath": "./"
     },
     "assetBundlePatterns": ["**/*"],
     "experiments": {
-      "baseUrl": "/expo-gh-pages"
+      "baseUrl": "./"
     },
     "plugins": [
       "expo-router",
