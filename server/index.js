@@ -74,10 +74,10 @@ app.post("/signup", async (req, res) => {
     (err, result) => {
       if (err) {
         console.error("Error executing query: " + err.stack);
-        res.status(400).send("Error creating user");
+        res.status(400).send({ error: "Error creating user" });
         return;
       }
-      res.status(201).send("User created successfully");
+      res.status(201).json({ message: "User created successfully" });
     }
   );
 });
