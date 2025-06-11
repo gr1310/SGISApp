@@ -89,7 +89,7 @@ const HomeworkSubmissionScreen = () => {
       formData.append("subject", subject);
       formData.append("teacher", teacher);
       formData.append("notes", notes);
-      formData.append("file", blob, file.name); // Using Blob instead of FormData
+      formData.append("file", blob, file.name);
 
       const apiResponse = await fetch(`${SERVER_URL}/submit-homework`, {
         method: "POST",
@@ -103,7 +103,7 @@ const HomeworkSubmissionScreen = () => {
         setTeacher("");
         setNotes("");
         setFile(null);
-        fetchSubmissions(); // Refresh list
+        fetchSubmissions();
       } else {
         showAlert("Error", "Failed to submit homework.");
       }
@@ -175,8 +175,7 @@ const HomeworkSubmissionScreen = () => {
                 <Text>👨‍🏫 Teacher: {item.teacher}</Text>
                 {item.notes ? <Text>📝 Notes: {item.notes}</Text> : null}
                 <Text>
-                  📎 File: {item.file_name} (
-                  {(item.file_size / 1024).toFixed(2)} KB)
+                  📎 File: {item.file_name} ({item.file_size})
                 </Text>
                 <Text style={{ fontSize: 12, color: "gray" }}>
                   📅 Submitted on: {item.date}

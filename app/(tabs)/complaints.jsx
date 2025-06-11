@@ -1,76 +1,71 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, ScrollView, StyleSheet } from "react-native";
 import { Button, Card, Badge } from "react-native-paper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useUser } from "../../context/UserContext";
 import { SERVER_URL } from "../../constants/constants";
+import { useUser } from "../../context/UserContext";
 
 const ComplaintsScreen = () => {
   const [name, setName] = useState("");
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [complaints, setComplaints] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [selectedTag, setSelectedTag] = useState(null);
   const { email } = useUser();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/complaints/${email}`)
-      .then((res) => res.json())
-      .then((data) => setComplaints(data))
-      .catch((err) => console.error(err));
-  }, [email]);
+    fetchComplaints();
+    fetchTags();
+  }, []);
 
-  const loadComplaints = async () => {
+  const fetchComplaints = async () => {
     try {
-      const storedComplaints = await AsyncStorage.getItem("complaints");
-      if (storedComplaints) {
-        setComplaints(JSON.parse(storedComplaints));
-      }
+      setLoading(true);
+      const response = await fetch(`${SERVER_URL}/complaints`);
+      const data = await response.json();
+      console.log("Fetched Complaints:", data);
+      setComplaints(data);
     } catch (error) {
-      console.error("Error loading complaints:", error);
+      console.error("Error fetching complaints:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // const submitComplaint = async () => {
-  //   if (!name || !subject || !description) {
-  //     alert("All fields are required.");
-  //     return;
-  //   }
-
-  //   const newComplaint = {
-  //     studentName: name.trim(),
-  //     subject: subject.trim(),
-  //     description: description.trim(),
-  //     status: "Submitted",
-  //     date: new Date().toISOString(),
-  //   };
-
-  //   try {
-  //     const updatedComplaints = [newComplaint, ...complaints]; // Add new complaint at the top
-  //     await AsyncStorage.setItem(
-  //       "complaints",
-  //       JSON.stringify(updatedComplaints)
-  //     );
-  //     setComplaints(updatedComplaints);
-  //     setName("");
-  //     setSubject("");
-  //     setDescription("");
-  //   } catch (error) {
-  //     alert("Failed to submit the complaint.");
-  //   }
-  // };
+  const fetchTags = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${SERVER_URL}/tags`);
+      const data = await response.json();
+      const tags = Object.values(data).map((item) => item.tag);
+      console.log("Fetched Tags:", tags);
+      setTags(tags);
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const submitComplaint = async () => {
-    if (!name || !email || !subject || !description) {
+    console.warn("Submitting complaint...");
+    console.log(name);
+    console.log(subject);
+    console.log(description);
+    if (!name || !subject || !description) {
       alert("All fields are required.");
       return;
     }
 
     const newComplaint = {
       student_name: name.trim(),
-      email: email.trim(),
       subject: subject.trim(),
       description: description.trim(),
+      email: email.trim(),
     };
+
+    console.log("New Complaint:", newComplaint);
 
     try {
       const response = await fetch(`${SERVER_URL}/complaints`, {
@@ -80,15 +75,20 @@ const ComplaintsScreen = () => {
       });
 
       const data = await response.json();
+      console.log("Complaint submitted:", data);
       setComplaints([data, ...complaints]);
       setName("");
       setSubject("");
       setDescription("");
     } catch (error) {
-      console.log(error);
+      console.error(error);
       alert("Failed to submit the complaint.");
     }
   };
+
+  const filteredComplaints = selectedTag
+    ? complaints.filter((c) => c.tags && c.tags.includes(selectedTag))
+    : complaints;
 
   return (
     <ScrollView style={styles.container}>
@@ -126,12 +126,50 @@ const ComplaintsScreen = () => {
         </Button>
       </View>
 
-      <Text style={styles.subHeader}>Your Recent Complaints</Text>
+      <Button
+        mode="outlined"
+        icon="refresh"
+        onPress={() => {
+          fetchComplaints();
+          fetchTags();
+        }}
+        style={{ borderRadius: 20 }}
+        loading={loading}
+        disabled={loading}
+      >
+        {loading ? "Refreshing..." : "Refresh"}
+      </Button>
 
-      {complaints.length === 0 ? (
-        <Text style={styles.noComplaints}>No complaints submitted yet.</Text>
+      <Text style={styles.subHeader}>Top Tags</Text>
+      <View style={styles.clusterContainer}>
+        <Text
+          style={[styles.token, selectedTag === null && styles.selectedToken]}
+          onPress={() => setSelectedTag(null)}
+        >
+          All
+        </Text>
+        {tags &&
+          tags.length > 0 &&
+          tags[0] !== "" &&
+          tags.map((tag, index) => (
+            <Text
+              key={index}
+              style={[
+                styles.token,
+                selectedTag === tag && styles.selectedToken,
+              ]}
+              onPress={() => setSelectedTag(tag)}
+            >
+              {tag}
+            </Text>
+          ))}
+      </View>
+
+      <Text style={styles.subHeader}>Complaints</Text>
+      {filteredComplaints.length === 0 ? (
+        <Text style={styles.noComplaints}>No complaints found.</Text>
       ) : (
-        complaints.map((complaint, index) => (
+        filteredComplaints.map((complaint, index) => (
           <Card key={index} style={styles.card}>
             <Card.Title
               title={complaint.subject}
@@ -139,6 +177,15 @@ const ComplaintsScreen = () => {
             />
             <Card.Content>
               <Text style={styles.description}>{complaint.description}</Text>
+              {complaint.tags && (
+                <View style={styles.keywordContainer}>
+                  {complaint.tags.map((keyword, idx) => (
+                    <Badge key={idx} style={styles.keywordBadge}>
+                      {keyword}
+                    </Badge>
+                  ))}
+                </View>
+              )}
               <Text style={styles.date}>
                 Submitted on: {new Date(complaint.date).toLocaleString()}
               </Text>
@@ -228,6 +275,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
+  },
+  clusterContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 10,
+    gap: 8,
+  },
+  token: {
+    backgroundColor: "#eee",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginRight: 6,
+    fontSize: 14,
+    color: "#333",
+  },
+  selectedToken: {
+    backgroundColor: "#007bff",
+    color: "white",
+  },
+  keywordContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 8,
+    gap: 6,
+  },
+  keywordBadge: {
+    backgroundColor: "#28a745",
+    color: "white",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
 });
 
