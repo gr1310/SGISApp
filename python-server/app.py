@@ -9,6 +9,17 @@ import psycopg2
 import joblib
 from keybert import KeyBERT
 import re
+from rapidfuzz import fuzz
+import nltk
+from symspellpy.symspellpy import SymSpell, Verbosity
+# nltk.download()
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('averaged_perceptron_tagger_eng')
+
+from nltk import pos_tag, word_tokenize
+
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -151,27 +162,120 @@ def get_homework(email):
         print("Error fetching homework:", e)
         return jsonify({"error": "Internal Server Error"}), 500
 
+sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
+
+dictionary_path = "symspell_dictionaries/frequency_dictionary_en_82_765.txt"
+custom_dictionary_path = "symspell_dictionaries/symspell_frequency_list.txt"
+term_index = 0  
+count_index = 1  
+sym_spell.load_dictionary(dictionary_path, term_index, count_index)
+sym_spell.load_dictionary(custom_dictionary_path, term_index, count_index)
+
+def correct_spelling(text):
+    words = text.split()
+    corrected_words = []
+
+    for word in words:
+        suggestions = sym_spell.lookup(word, Verbosity.CLOSEST, max_edit_distance=2)
+        if suggestions:
+            corrected_words.append(suggestions[0].term)
+        else:
+            corrected_words.append(word)
+
+    return ' '.join(corrected_words)
 
 def sanitize_tag(tag):
-    return re.sub(r'[^\w\s]', '', tag.lower().strip())
+    tag = re.sub(r'[^\w\s]', '', tag.lower().strip())
+    words = sorted(tag.split())  # Sort to reduce near-duplicates like "fan classroom" vs "classroom fan"
+    return ' '.join(words)
+
+def is_valid_tag(tag):
+    if not tag:
+        return False
+    if re.match(r'^\d', tag):  # Starts with number
+        return False
+    if re.search(r'\d', tag):  # Contains number
+        return False
+    if len(tag.split()) < 2:  # Must have at least two words
+        return False
+    return validate_pos(tag)
+
+# def validate_pos(tag):
+#     tokens = word_tokenize(tag)
+#     pos_tags = pos_tag(tokens)
+#     # Allow adjectives (JJ), nouns (NN, NNS, NNP, NNPS)
+#     allowed_tags = {'JJ', 'JJR', 'JJS', 'NN', 'NNS', 'NNP', 'NNPS'}
+#     has_noun = any(pos.startswith('NN') for _, pos in pos_tags)
+#     all_allowed = all(pos in allowed_tags for _, pos in pos_tags)
+#     return has_noun and all_allowed
+
+import spacy
+
+# Load spaCy English model
+nlp = spacy.load("en_core_web_sm")
+
+def validate_pos(tag):
+    doc = nlp(tag)
+    
+    # Check if it's a valid noun chunk (meaningful phrase)
+    for chunk in doc.noun_chunks:
+        if chunk.text.lower() == tag.lower():
+            return True
+
+    return False
+
+
+def get_existing_tags(cursor):
+    cursor.execute("SELECT id, tag_name FROM tags")
+    return cursor.fetchall()
+
+def find_similar_tag(sanitized_tag, existing_tags, threshold=85):
+    best_match = None
+    highest_score = 0
+
+    for tag_id, existing_tag in existing_tags:
+        score = fuzz.token_set_ratio(sanitized_tag, existing_tag)
+        if score >= threshold and score > highest_score:
+            best_match = tag_id
+            highest_score = score
+
+    return best_match
 
 def process_complaint_tags(cursor, complaint_id, description):
-    tags = kw_model.extract_keywords(description, keyphrase_ngram_range=(1, 1), stop_words='english', top_n=5)
+    description = correct_spelling(description)
+    tags = kw_model.extract_keywords(description, keyphrase_ngram_range=(1, 4), stop_words='english', top_n=10, use_maxsum=True, nr_candidates=20)
     print(f"Extracted tags for complaint {complaint_id}: {tags}")
-    clean_tags = [sanitize_tag(tag[0]) for tag in tags]
+
+    clean_tags = []
+    for tag in tags:
+        sanitized_tag = sanitize_tag(tag[0])
+        if is_valid_tag(sanitized_tag):
+            clean_tags.append(sanitized_tag)
+
     print(f"Cleaned tags for complaint {complaint_id}: {clean_tags}")
 
     try:
-        for tag in clean_tags:
-            cursor.execute("SELECT id, frequency FROM tags WHERE tag_name = %s", (tag,))
-            result = cursor.fetchone()
+        existing_tags = get_existing_tags(cursor)
+        complaint_tag_ids = [] 
 
-            if result:
-                tag_id, frequency = result
-                cursor.execute("UPDATE tags SET frequency = frequency + 1 WHERE id = %s", (tag_id,))
+        for tag in clean_tags:
+            similar_tag_id = find_similar_tag(tag, existing_tags)
+
+            if similar_tag_id:
+                if similar_tag_id in complaint_tag_ids:
+                    # If similar tag was already linked to this complaint, skip frequency update
+                    print(f"Tag '{tag}' is similar to an already linked tag in this complaint. Skipping frequency update.")
+                else:
+                    # Update frequency only if it's the first time this tag is linked in this complaint
+                    cursor.execute("UPDATE tags SET frequency = frequency + 1 WHERE id = %s", (similar_tag_id,))
+                    complaint_tag_ids.append(similar_tag_id)
+                
+                tag_id = similar_tag_id
+
             else:
                 cursor.execute("INSERT INTO tags (tag_name, frequency) VALUES (%s, 1) RETURNING id", (tag,))
                 tag_id = cursor.fetchone()[0]
+                existing_tags.append((tag_id, tag))
 
             cursor.execute("INSERT INTO complaint_tags (complaint_id, tag_id) VALUES (%s, %s)", (complaint_id, tag_id))
 
@@ -261,7 +365,7 @@ def get_popular_tags():
                 JOIN complaint_tags ct ON t.id = ct.tag_id
                 GROUP BY t.tag_name
                 ORDER BY tag_count DESC
-                LIMIT 10
+                LIMIT 15
             """)
             tags = cursor.fetchall()
 

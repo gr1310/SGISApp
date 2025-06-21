@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, ScrollView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { Button, Card, Badge } from "react-native-paper";
 import { SERVER_URL } from "../../constants/constants";
 import { useUser } from "../../context/UserContext";
@@ -12,8 +19,11 @@ const ComplaintsScreen = () => {
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(null);
   const { email } = useUser();
-  const [loading, setLoading] = useState(false);
+  const [complaintsLoading, setComplaintsLoading] = useState(false);
+  const [tagsLoading, setTagsLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
+  const loading = complaintsLoading || tagsLoading;
   useEffect(() => {
     fetchComplaints();
     fetchTags();
@@ -21,7 +31,7 @@ const ComplaintsScreen = () => {
 
   const fetchComplaints = async () => {
     try {
-      setLoading(true);
+      setComplaintsLoading(true);
       const response = await fetch(`${SERVER_URL}/complaints`);
       const data = await response.json();
       console.log("Fetched Complaints:", data);
@@ -29,13 +39,13 @@ const ComplaintsScreen = () => {
     } catch (error) {
       console.error("Error fetching complaints:", error);
     } finally {
-      setLoading(false);
+      setComplaintsLoading(false);
     }
   };
 
   const fetchTags = async () => {
     try {
-      setLoading(true);
+      setTagsLoading(true);
       const response = await fetch(`${SERVER_URL}/tags`);
       const data = await response.json();
       const tags = Object.values(data).map((item) => item.tag);
@@ -44,11 +54,12 @@ const ComplaintsScreen = () => {
     } catch (error) {
       console.error("Error fetching tags:", error);
     } finally {
-      setLoading(false);
+      setTagsLoading(false);
     }
   };
 
   const submitComplaint = async () => {
+    setSubmitLoading(true);
     console.warn("Submitting complaint...");
     console.log(name);
     console.log(subject);
@@ -83,6 +94,8 @@ const ComplaintsScreen = () => {
     } catch (error) {
       console.error(error);
       alert("Failed to submit the complaint.");
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -91,112 +104,120 @@ const ComplaintsScreen = () => {
     : complaints;
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.formContainer}>
-        <Text style={styles.header}>Submit a Complaint</Text>
+    <>
+      {submitLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#6200ee" />
+        </View>
+      )}
 
-        <TextInput
-          style={styles.input}
-          placeholder="Your Name *"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Subject *"
-          value={subject}
-          onChangeText={setSubject}
-        />
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Description *"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-          numberOfLines={4}
-        />
+      <ScrollView style={styles.container}>
+        <View style={styles.formContainer}>
+          <Text style={styles.header}>Submit a Complaint</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Your Name *"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Subject *"
+            value={subject}
+            onChangeText={setSubject}
+          />
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Description *"
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            numberOfLines={4}
+          />
+
+          <Button
+            mode="contained"
+            icon="send"
+            onPress={submitComplaint}
+            style={styles.button}
+          >
+            Submit Complaint
+          </Button>
+        </View>
 
         <Button
-          mode="contained"
-          icon="send"
-          onPress={submitComplaint}
-          style={styles.button}
+          mode="outlined"
+          icon="refresh"
+          onPress={() => {
+            fetchComplaints();
+            fetchTags();
+          }}
+          style={{ borderRadius: 20 }}
+          loading={loading}
+          disabled={loading}
         >
-          Submit Complaint
+          {loading ? "Refreshing..." : "Refresh"}
         </Button>
-      </View>
 
-      <Button
-        mode="outlined"
-        icon="refresh"
-        onPress={() => {
-          fetchComplaints();
-          fetchTags();
-        }}
-        style={{ borderRadius: 20 }}
-        loading={loading}
-        disabled={loading}
-      >
-        {loading ? "Refreshing..." : "Refresh"}
-      </Button>
-
-      <Text style={styles.subHeader}>Top Tags</Text>
-      <View style={styles.clusterContainer}>
-        <Text
-          style={[styles.token, selectedTag === null && styles.selectedToken]}
-          onPress={() => setSelectedTag(null)}
-        >
-          All
-        </Text>
-        {tags &&
-          tags.length > 0 &&
-          tags[0] !== "" &&
-          tags.map((tag, index) => (
-            <Text
-              key={index}
-              style={[
-                styles.token,
-                selectedTag === tag && styles.selectedToken,
-              ]}
-              onPress={() => setSelectedTag(tag)}
-            >
-              {tag}
-            </Text>
-          ))}
-      </View>
-
-      <Text style={styles.subHeader}>Complaints</Text>
-      {filteredComplaints.length === 0 ? (
-        <Text style={styles.noComplaints}>No complaints found.</Text>
-      ) : (
-        filteredComplaints.map((complaint, index) => (
-          <Card key={index} style={styles.card}>
-            <Card.Title
-              title={complaint.subject}
-              subtitle={`By: ${complaint.student_name}`}
-            />
-            <Card.Content>
-              <Text style={styles.description}>{complaint.description}</Text>
-              {complaint.tags && (
-                <View style={styles.keywordContainer}>
-                  {complaint.tags.map((keyword, idx) => (
-                    <Badge key={idx} style={styles.keywordBadge}>
-                      {keyword}
-                    </Badge>
-                  ))}
-                </View>
-              )}
-              <Text style={styles.date}>
-                Submitted on: {new Date(complaint.date).toLocaleString()}
+        <Text style={styles.subHeader}>Top Tags</Text>
+        <View style={styles.clusterContainer}>
+          <Text
+            style={[styles.token, selectedTag === null && styles.selectedToken]}
+            onPress={() => setSelectedTag(null)}
+          >
+            All
+          </Text>
+          {tags &&
+            tags.length > 0 &&
+            tags[0] !== "" &&
+            tags.map((tag, index) => (
+              <Text
+                key={index}
+                style={[
+                  styles.token,
+                  selectedTag === tag && styles.selectedToken,
+                ]}
+                onPress={() => setSelectedTag(tag)}
+              >
+                {tag}
               </Text>
-            </Card.Content>
-            <Card.Actions>
-              <Badge style={styles.badge}>{complaint.status}</Badge>
-            </Card.Actions>
-          </Card>
-        ))
-      )}
-    </ScrollView>
+            ))}
+        </View>
+
+        <Text style={styles.subHeader}>Complaints</Text>
+        {filteredComplaints.length === 0 ? (
+          <Text style={styles.noComplaints}>No complaints found.</Text>
+        ) : (
+          filteredComplaints.map((complaint, index) => (
+            <Card key={index} style={styles.card}>
+              <Card.Title
+                title={complaint.subject}
+                subtitle={`By: ${complaint.student_name}`}
+              />
+              <Card.Content>
+                <Text style={styles.description}>{complaint.description}</Text>
+                {complaint.tags && (
+                  <View style={styles.keywordContainer}>
+                    {complaint.tags.map((keyword, idx) => (
+                      <Badge key={idx} style={styles.keywordBadge}>
+                        {keyword}
+                      </Badge>
+                    ))}
+                  </View>
+                )}
+                <Text style={styles.date}>
+                  Submitted on: {new Date(complaint.date).toLocaleString()}
+                </Text>
+              </Card.Content>
+              <Card.Actions>
+                <Badge style={styles.badge}>{complaint.status}</Badge>
+              </Card.Actions>
+            </Card>
+          ))
+        )}
+      </ScrollView>
+    </>
   );
 };
 
@@ -307,6 +328,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.3)", // semi-transparent background
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
   },
 });
 
