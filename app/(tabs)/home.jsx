@@ -12,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/Feather";
 import AnnouncementCard from "../../components/AnnouncementCard";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Sample function to format date
 const formatDate = (dateString) => {
@@ -84,7 +85,8 @@ const Home = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    // <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         {/* <TouchableOpacity
@@ -125,12 +127,13 @@ const Home = () => {
           )}
         />
       )}
-    </View>
+      {/* </View> */}
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8f9fa", paddingTop: 10 },
+  container: { flex: 1, backgroundColor: "#f8f9fa" },
   header: {
     flexDirection: "row",
     alignItems: "center",

@@ -10,6 +10,7 @@ import {
 import { Button, Card, Badge } from "react-native-paper";
 import { SERVER_URL } from "../../constants/constants";
 import { useUser } from "../../context/UserContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ComplaintsScreen = () => {
   const [name, setName] = useState("");
@@ -104,7 +105,7 @@ const ComplaintsScreen = () => {
     : complaints;
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1 }}>
       {submitLoading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#6200ee" />
@@ -217,7 +218,7 @@ const ComplaintsScreen = () => {
           ))
         )}
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -226,7 +227,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
     paddingHorizontal: 20,
-    paddingTop: 10,
   },
   formContainer: {
     backgroundColor: "#fff",
@@ -296,12 +296,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
+    marginBottom: 10,
   },
   clusterContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     marginBottom: 10,
+    padding: 10,
     gap: 8,
+    marginBottom: 10,
   },
   token: {
     backgroundColor: "#eee",
@@ -321,6 +324,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     marginTop: 8,
     gap: 6,
+    margin: 10,
   },
   keywordBadge: {
     backgroundColor: "#28a745",

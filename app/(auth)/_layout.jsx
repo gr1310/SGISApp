@@ -5,9 +5,10 @@ import { StatusBar } from "expo-status-bar";
 const AuthLayout = () => {
   return (
     <>
+      <StatusBar style="light" />
       <Stack>
         <Stack.Screen
-          name="login"
+          name="google-signin"
           options={{
             headerTintColor: "#000",
             hheaderBackTitleVisible: false,
@@ -23,7 +24,6 @@ const AuthLayout = () => {
             headerTitle: "",
           }}
         />
-        <StatusBar backgroundColor="#161622" style="light" />
       </Stack>
     </>
   );

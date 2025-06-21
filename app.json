@@ -3,6 +3,7 @@
     "name": "sgis-app",
     "slug": "sgis-app",
     "version": "1.0.0",
+    "scheme": "sgis-app",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,26 +15,46 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.sgis.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.sgis.app"
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "output": "web-build",
-  "publicPath": "./"
+      "output": "single-page",
+      "publicPath": "./"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "experiments": {
       "baseUrl": "./"
     },
     "plugins": [
       "expo-router",
-      "expo-font"
-    ]
+      "expo-font",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.414385651586-1hpnh7mqunlki9gmeevunuobrg3r9tfo"
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7e8bc1cd-3b49-46fa-b097-e4ba784f34e4"
+      }
+    }
   }
 }

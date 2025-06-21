@@ -12,6 +12,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { Card } from "react-native-paper";
 import { useUser } from "../../context/UserContext";
 import { SERVER_URL } from "../../constants/constants";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const showAlert = (title, message) => {
   if (Platform.OS === "web") {
@@ -114,7 +115,7 @@ const HomeworkSubmissionScreen = () => {
   };
 
   return (
-    <View style={{ padding: 20 }}>
+    <SafeAreaView style={{ padding: 20 }}>
       <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 10 }}>
         Submit Your Homework
       </Text>
@@ -185,7 +186,7 @@ const HomeworkSubmissionScreen = () => {
           )}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
