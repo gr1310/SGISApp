@@ -14,7 +14,6 @@
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
     "@react-native-async-storage/async-storage": "^2.1.2",
-    "@react-native-google-signin/google-signin": "^14.0.1",
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/stack": "^7.3.6",
     "expo": "^53.0.12",
@@ -39,7 +38,9 @@
     "use-latest-callback": "^0.2.4",
     "expo-dev-client": "~5.2.1",
     "expo-auth-session": "~6.2.0",
-    "expo-web-browser": "~14.2.0"
+    "expo-web-browser": "~14.2.0",
+    "expo-updates": "~0.28.15",
+    "expo-splash-screen": "~0.30.9"
   },
   "resolutions": {
     "use-latest-callback": "0.1.9"

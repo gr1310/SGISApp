@@ -15,7 +15,6 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "bundleIdentifier": "com.sgis.app",
       "supportsTablet": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -25,8 +24,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.sgis.app"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -42,12 +40,6 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      [
-        "@react-native-google-signin/google-signin",
-        {
-          "iosUrlScheme": "com.googleusercontent.apps.414385651586-1hpnh7mqunlki9gmeevunuobrg3r9tfo"
-        }
-      ],
       "expo-web-browser"
     ],
     "extra": {
@@ -55,6 +47,12 @@
       "eas": {
         "projectId": "7e8bc1cd-3b49-46fa-b097-e4ba784f34e4"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/7e8bc1cd-3b49-46fa-b097-e4ba784f34e4"
     }
   }
 }

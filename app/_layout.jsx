@@ -3,7 +3,9 @@ import React, { useState, useEffect } from "react";
 import { useFonts } from "expo-font";
 import SplashScreen from "../components/SplashScreen"; // Import your custom splash screen
 import { UserProvider } from "../context/UserContext";
+import * as SplashScreenComp from "expo-splash-screen";
 
+SplashScreenComp.preventAutoHideAsync(); // Prevent auto-hiding of the splash screen until fonts are loaded
 const RootLayout = () => {
   const [fontLoaded, error] = useFonts({
     "Poppins-Black": require("../assets/fonts/Poppins-Black.ttf"),
